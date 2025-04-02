@@ -32,7 +32,10 @@ const isProjectCacheValid = (projectId) => {
 // Função para buscar os detalhes de um projeto e armazenar no cache
 const fetchProjectDetailsAndCache = async (projectId) => {
   try {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
 
     await page.setUserAgent(
