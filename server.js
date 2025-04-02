@@ -80,7 +80,7 @@ app.get("/api/projects", async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar dados da API" });
   } catch (error) {
     console.error("Erro na API:", error);
-    res.status(500).json({ error: "Erro ao processar requisição" });
+    res.status(500).json({ error: "Erro ao processar requisição" + error});
   }
 });
 
