@@ -109,7 +109,7 @@ app.get("/api/projects", async (req, res) => {
     const newData = await fetchProjectsAndCache();
     if (newData) return res.json(newData);
 
-    res.status(500).json({ error: "Erro ao buscar dados da API" });
+    res.status(500).json({ error: "Erro ao buscar dados da API"+ error });
   } catch (error) {
     console.error("Erro na API:", error);
     res.status(500).json({ error: "Erro ao processar requisição" });
