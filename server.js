@@ -29,6 +29,38 @@ const isProjectCacheValid = (projectId) => {
   return now - lastModified < CACHE_DURATION;
 };
 
+// Função para buscar a lista de projetos e armazenar no cache
+const fetchProjectsAndCache = async () => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
+    );
+
+    await page.goto("https://www.artstation.com/projects.json", {
+      waitUntil: "networkidle2",
+    });
+
+    const content = await page.evaluate(() => document.body.innerText);
+    await browser.close();
+
+    const data = JSON.parse(content);
+
+    // Salva a lista de projetos no cache
+    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2));
+
+    return data;
+  } catch (error) {
+    console.error("Erro ao buscar lista de projetos:", error);
+    return null;
+  }
+};
+
 // Função para buscar os detalhes de um projeto e armazenar no cache
 const fetchProjectDetailsAndCache = async (projectId) => {
   try {
@@ -74,13 +106,13 @@ app.get("/api/projects", async (req, res) => {
     }
 
     console.log("Buscando novos projetos...");
-    const newData = await fetchDataAndCache();
+    const newData = await fetchProjectsAndCache();
     if (newData) return res.json(newData);
 
     res.status(500).json({ error: "Erro ao buscar dados da API" });
   } catch (error) {
     console.error("Erro na API:", error);
-    res.status(500).json({ error: "Erro ao processar requisição" + error});
+    res.status(500).json({ error: "Erro ao processar requisição" });
   }
 });
 
